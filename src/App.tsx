@@ -2,7 +2,53 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/context/AuthContext";
+import { ProtectedRoute } from "@/routes/ProtectedRoute";
+
+// Auth Pages
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+
+// Layouts
+import { StudentLayout } from "./layouts/StudentLayout";
+import { AdminLayout } from "./layouts/AdminLayout";
+import { LeaderLayout } from "./layouts/LeaderLayout";
+import { RunnerLayout } from "./layouts/RunnerLayout";
+import { StationaryLayout } from "./layouts/StationaryLayout";
+
+// Student Pages
+import StudentDashboard from "./pages/student/Dashboard";
+import UploadDocument from "./pages/student/UploadDocument";
+import MyDocuments from "./pages/student/MyDocuments";
+import Tracking from "./pages/student/Tracking";
+
+// Admin Pages
+import AdminDashboard from "./pages/admin/Dashboard";
+import Users from "./pages/admin/Users";
+import PrintJobs from "./pages/admin/PrintJobs";
+import Payments from "./pages/admin/Payments";
+import Deliveries from "./pages/admin/Deliveries";
+import Settings from "./pages/admin/Settings";
+
+// Leader Pages
+import LeaderDashboard from "./pages/leader/Dashboard";
+import ReceivedDocuments from "./pages/leader/ReceivedDocuments";
+import ClassDocuments from "./pages/leader/ClassDocuments";
+
+// Runner Pages
+import RunnerDashboard from "./pages/runner/Dashboard";
+import PickupTasks from "./pages/runner/PickupTasks";
+import DeliverTasks from "./pages/runner/DeliverTasks";
+
+// Stationary Pages
+import StationaryDashboard from "./pages/stationary/Dashboard";
+import InventoryList from "./pages/stationary/InventoryList";
+import AddItem from "./pages/stationary/AddItem";
+import StockUpdate from "./pages/stationary/StockUpdate";
+import Alerts from "./pages/stationary/Alerts";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -13,13 +59,86 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+
+            {/* Student Routes */}
+            <Route path="/student" element={
+              <ProtectedRoute allowedRoles={['student']}>
+                <StudentLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/student/dashboard" replace />} />
+              <Route path="dashboard" element={<StudentDashboard />} />
+              <Route path="upload" element={<UploadDocument />} />
+              <Route path="documents" element={<MyDocuments />} />
+              <Route path="tracking" element={<Tracking />} />
+            </Route>
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="users" element={<Users />} />
+              <Route path="print-jobs" element={<PrintJobs />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="deliveries" element={<Deliveries />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+
+            {/* Leader Routes */}
+            <Route path="/leader" element={
+              <ProtectedRoute allowedRoles={['leader']}>
+                <LeaderLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/leader/dashboard" replace />} />
+              <Route path="dashboard" element={<LeaderDashboard />} />
+              <Route path="received" element={<ReceivedDocuments />} />
+              <Route path="class-documents" element={<ClassDocuments />} />
+            </Route>
+
+            {/* Runner Routes */}
+            <Route path="/runner" element={
+              <ProtectedRoute allowedRoles={['runner']}>
+                <RunnerLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/runner/dashboard" replace />} />
+              <Route path="dashboard" element={<RunnerDashboard />} />
+              <Route path="pickup" element={<PickupTasks />} />
+              <Route path="deliver" element={<DeliverTasks />} />
+            </Route>
+
+            {/* Stationary Routes */}
+            <Route path="/stationary" element={
+              <ProtectedRoute allowedRoles={['stationary']}>
+                <StationaryLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/stationary/dashboard" replace />} />
+              <Route path="dashboard" element={<StationaryDashboard />} />
+              <Route path="inventory" element={<InventoryList />} />
+              <Route path="add-item" element={<AddItem />} />
+              <Route path="stock-update" element={<StockUpdate />} />
+              <Route path="alerts" element={<Alerts />} />
+            </Route>
+
+            {/* 404 Route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
