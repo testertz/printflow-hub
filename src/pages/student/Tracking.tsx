@@ -7,29 +7,22 @@ import { useState } from 'react';
 
 const getTimelineSteps = (status: string): TimelineStep[] => {
   const allSteps = [
-    { label: 'Document Uploaded', status: 'completed' as const, timestamp: '2 hours ago' },
-    { label: 'Payment Confirmed', status: 'completed' as const, timestamp: '1 hour ago' },
-    { label: 'Printing in Progress', status: 'completed' as const, timestamp: '45 mins ago' },
-    { label: 'Ready for Pickup', status: 'completed' as const, timestamp: '30 mins ago' },
-    { label: 'Picked by Runner', status: 'active' as const, timestamp: 'In progress' },
-    { label: 'Out for Delivery', status: 'pending' as const },
-    { label: 'Delivered to Class Leader', status: 'pending' as const },
+    { label: 'Pending Print', status: 'completed' as const, timestamp: 'Submitted' },
+    { label: 'Printed', status: 'completed' as const, timestamp: 'Printed and ready' },
+    { label: 'Collected', status: 'pending' as const },
   ];
 
   const statusIndex = {
-    'uploaded': 0,
-    'paid': 1,
-    'printing': 2,
-    'ready': 3,
-    'with_runner': 4,
-    'delivered': 6,
-    'completed': 6,
+    'pending': 0,
+    'printed': 1,
+    'collected': 2,
   }[status] || 0;
 
   return allSteps.map((step, index) => ({
     ...step,
     status: index < statusIndex ? 'completed' : 
-            index === statusIndex ? 'active' : 'pending'
+            index === statusIndex ? 'active' : 'pending',
+    timestamp: index <= statusIndex ? step.timestamp : undefined
   }));
 };
 
@@ -80,7 +73,7 @@ export default function Tracking() {
           <CardHeader>
             <CardTitle>Order Status</CardTitle>
             <CardDescription>
-              {selectedDoc.fileName} • {selectedDoc.pages} pages • ₹{selectedDoc.cost}
+              {selectedDoc.fileName} • {selectedDoc.pages} pages • {selectedDoc.cost} TSH
             </CardDescription>
           </CardHeader>
           <CardContent>
