@@ -43,6 +43,9 @@ import AddItem from "./pages/stationary/AddItem";
 import StockUpdate from "./pages/stationary/StockUpdate";
 import Alerts from "./pages/stationary/Alerts";
 
+// Shared Pages
+import Profile from "./pages/Profile";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -73,6 +76,7 @@ const App = () => (
               <Route path="upload" element={<UploadDocument />} />
               <Route path="documents" element={<MyDocuments />} />
               <Route path="tracking" element={<Tracking />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
 
             {/* Admin Routes */}
@@ -88,6 +92,7 @@ const App = () => (
               <Route path="payments" element={<Payments />} />
               <Route path="deliveries" element={<Deliveries />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
 
             {/* Runner Routes */}
@@ -100,6 +105,7 @@ const App = () => (
               <Route path="dashboard" element={<RunnerDashboard />} />
               <Route path="pickup" element={<PickupTasks />} />
               <Route path="deliver" element={<DeliverTasks />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
 
             {/* Stationary Routes */}
@@ -114,6 +120,7 @@ const App = () => (
               <Route path="add-item" element={<AddItem />} />
               <Route path="stock-update" element={<StockUpdate />} />
               <Route path="alerts" element={<Alerts />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
 
             {/* 404 Route */}

@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Package, Plus, TrendingUp, Bell } from 'lucide-react';
+import { LayoutDashboard, Package, Plus, TrendingUp, Bell, User } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { Topbar } from '@/components/Topbar';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
@@ -11,6 +11,7 @@ const menuItems = [
   { title: 'Add Item', icon: Plus, path: '/stationary/add-item' },
   { title: 'Stock Update', icon: TrendingUp, path: '/stationary/stock-update' },
   { title: 'Alerts', icon: Bell, path: '/stationary/alerts' },
+  { title: 'Profile', icon: User, path: '/stationary/profile' },
 ];
 
 export const StationaryLayout = () => {
