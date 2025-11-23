@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, PackageCheck, Truck } from 'lucide-react';
+import { LayoutDashboard, PackageCheck, Truck, User } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { Topbar } from '@/components/Topbar';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
@@ -9,6 +9,7 @@ const menuItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/runner/dashboard' },
   { title: 'Pickup Tasks', icon: PackageCheck, path: '/runner/pickup' },
   { title: 'Deliver Tasks', icon: Truck, path: '/runner/deliver' },
+  { title: 'Profile', icon: User, path: '/runner/profile' },
 ];
 
 export const RunnerLayout = () => {
