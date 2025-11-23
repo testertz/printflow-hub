@@ -14,7 +14,6 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 // Layouts
 import { StudentLayout } from "./layouts/StudentLayout";
 import { AdminLayout } from "./layouts/AdminLayout";
-import { LeaderLayout } from "./layouts/LeaderLayout";
 import { RunnerLayout } from "./layouts/RunnerLayout";
 import { StationaryLayout } from "./layouts/StationaryLayout";
 
@@ -31,11 +30,6 @@ import PrintJobs from "./pages/admin/PrintJobs";
 import Payments from "./pages/admin/Payments";
 import Deliveries from "./pages/admin/Deliveries";
 import Settings from "./pages/admin/Settings";
-
-// Leader Pages
-import LeaderDashboard from "./pages/leader/Dashboard";
-import ReceivedDocuments from "./pages/leader/ReceivedDocuments";
-import ClassDocuments from "./pages/leader/ClassDocuments";
 
 // Runner Pages
 import RunnerDashboard from "./pages/runner/Dashboard";
@@ -94,18 +88,6 @@ const App = () => (
               <Route path="payments" element={<Payments />} />
               <Route path="deliveries" element={<Deliveries />} />
               <Route path="settings" element={<Settings />} />
-            </Route>
-
-            {/* Leader Routes */}
-            <Route path="/leader" element={
-              <ProtectedRoute allowedRoles={['leader']}>
-                <LeaderLayout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<Navigate to="/leader/dashboard" replace />} />
-              <Route path="dashboard" element={<LeaderDashboard />} />
-              <Route path="received" element={<ReceivedDocuments />} />
-              <Route path="class-documents" element={<ClassDocuments />} />
             </Route>
 
             {/* Runner Routes */}

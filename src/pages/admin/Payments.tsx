@@ -40,7 +40,7 @@ export default function Payments() {
 
       <div className="grid gap-6 md:grid-cols-3">
         {[
-          { label: 'Total Revenue', value: `₹${payments.reduce((sum, p) => sum + (p.status === 'paid' ? p.amount : 0), 0)}`, icon: CheckCircle, color: 'text-success' },
+          { label: 'Total Revenue', value: `${payments.reduce((sum, p) => sum + (p.status === 'paid' ? p.amount : 0), 0)} TSH`, icon: CheckCircle, color: 'text-success' },
           { label: 'Pending Payments', value: payments.filter(p => p.status === 'pending').length, icon: Clock, color: 'text-warning' },
           { label: 'Failed Payments', value: payments.filter(p => p.status === 'failed').length, icon: XCircle, color: 'text-destructive' },
         ].map((stat, index) => (
@@ -101,7 +101,7 @@ export default function Payments() {
                     <TableCell className="font-mono text-sm">{payment.orderId}</TableCell>
                     <TableCell className="font-medium">{payment.studentName}</TableCell>
                     <TableCell>{payment.fileName}</TableCell>
-                    <TableCell className="text-center font-medium">₹{payment.amount}</TableCell>
+                    <TableCell className="text-center font-medium">{payment.amount} TSH</TableCell>
                     <TableCell className="text-center text-sm">
                       {new Date(payment.date).toLocaleDateString()}
                     </TableCell>

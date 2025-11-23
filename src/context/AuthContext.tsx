@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type UserRole = 'student' | 'admin' | 'leader' | 'runner' | 'stationary';
+export type UserRole = 'student' | 'admin' | 'runner' | 'stationary';
 
 export interface User {
   id: string;
@@ -48,11 +48,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         name: email.split('@')[0],
         role: email.includes('admin') ? 'admin' : 
-              email.includes('leader') ? 'leader' :
               email.includes('runner') ? 'runner' :
               email.includes('stationary') ? 'stationary' : 'student',
-        classId: email.includes('leader') || email.includes('student') ? 'CS101' : undefined,
-        className: email.includes('leader') || email.includes('student') ? 'Computer Science 101' : undefined,
+        classId: email.includes('student') ? 'CS101' : undefined,
+        className: email.includes('student') ? 'Computer Science 101' : undefined,
       };
       const mockToken = 'mock-jwt-token-' + Math.random();
       
