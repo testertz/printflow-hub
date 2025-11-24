@@ -7,11 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { mockDocuments } from '@/services/api';
 
 export default function PrintJobs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   
   const filteredJobs = mockDocuments.filter(job => {
     const matchesSearch = job.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -19,6 +22,10 @@ export default function PrintJobs() {
     const matchesStatus = statusFilter === 'all' || job.printStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedJobs = filteredJobs.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="space-y-6">
@@ -57,23 +64,23 @@ export default function PrintJobs() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>File Name</TableHead>
-                  <TableHead>Student</TableHead>
-                  <TableHead className="text-center">Class</TableHead>
-                  <TableHead className="text-center">Pages</TableHead>
-                  <TableHead className="text-center">Type</TableHead>
+                  <TableHead className="hidden md:table-cell">Student</TableHead>
+                  <TableHead className="text-center hidden lg:table-cell">Class</TableHead>
+                  <TableHead className="text-center hidden sm:table-cell">Pages</TableHead>
+                  <TableHead className="text-center hidden xl:table-cell">Type</TableHead>
                   <TableHead className="text-center">Cost</TableHead>
-                  <TableHead className="text-center">Payment</TableHead>
+                  <TableHead className="text-center hidden lg:table-cell">Payment</TableHead>
                   <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="text-right hidden md:table-cell">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredJobs.map((job, index) => (
+                {paginatedJobs.map((job, index) => (
                   <motion.tr
                     key={job.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -89,20 +96,20 @@ export default function PrintJobs() {
                         <span className="font-medium text-sm">{job.fileName}</span>
                       </div>
                     </TableCell>
-                    <TableCell>{job.studentName}</TableCell>
-                    <TableCell className="text-center">{job.className}</TableCell>
-                    <TableCell className="text-center">{job.pages}</TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="hidden md:table-cell">{job.studentName}</TableCell>
+                    <TableCell className="text-center hidden lg:table-cell">{job.className}</TableCell>
+                    <TableCell className="text-center hidden sm:table-cell">{job.pages}</TableCell>
+                    <TableCell className="text-center hidden xl:table-cell">
                       <span className="uppercase text-xs font-medium">{job.printType}</span>
                     </TableCell>
-                    <TableCell className="text-center font-medium">₹{job.cost}</TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="text-center font-medium">{job.cost} TSH</TableCell>
+                    <TableCell className="text-center hidden lg:table-cell">
                       <StatusBadge status={job.paymentStatus as any} />
                     </TableCell>
                     <TableCell className="text-center">
                       <StatusBadge status={job.printStatus as any} />
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right hidden md:table-cell">
                       <Button variant="ghost" size="sm">
                         Manage
                       </Button>
@@ -112,6 +119,37 @@ export default function PrintJobs() {
               </TableBody>
             </Table>
           </div>
+          {totalPages > 1 && (
+            <div className="mt-4">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <PaginationItem key={i + 1}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(i + 1)}
+                        isActive={currentPage === i + 1}
+                        className="cursor-pointer"
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

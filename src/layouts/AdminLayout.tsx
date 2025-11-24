@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Users, Printer, DollarSign, Truck, Settings, User } from 'lucide-react';
+import { LayoutDashboard, Users, Printer, DollarSign, Truck, Settings, User, Bell } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { Topbar } from '@/components/Topbar';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
@@ -11,6 +11,7 @@ const menuItems = [
   { title: 'Print Jobs', icon: Printer, path: '/admin/print-jobs' },
   { title: 'Payments', icon: DollarSign, path: '/admin/payments' },
   { title: 'Deliveries', icon: Truck, path: '/admin/deliveries' },
+  { title: 'Notifications', icon: Bell, path: '/admin/notifications' },
   { title: 'Settings', icon: Settings, path: '/admin/settings' },
   { title: 'Profile', icon: User, path: '/admin/profile' },
 ];

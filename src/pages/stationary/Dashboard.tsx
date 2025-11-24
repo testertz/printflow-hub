@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Printer, Package, Search } from 'lucide-react';
+import { FileText, Printer, Package, Search, PrinterIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { mockDocuments } from '@/services/api';
@@ -8,26 +8,42 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/StatusBadge';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 export default function StationaryDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [documents, setDocuments] = useState(mockDocuments);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const totalDocuments = documents.length;
   const pendingPrint = documents.filter(d => d.printStatus === 'pending' && d.paymentStatus === 'paid').length;
   const printed = documents.filter(d => d.printStatus === 'printed').length;
 
-  const filteredDocuments = documents.filter(doc =>
-    doc.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.fileName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = doc.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.fileName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || doc.printStatus === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedDocuments = filteredDocuments.slice(startIndex, startIndex + itemsPerPage);
 
   const handleMarkAsPrinted = (docId: string) => {
     setDocuments(prev => prev.map(doc => 
       doc.id === docId ? { ...doc, printStatus: 'printed' } : doc
     ));
     toast.success('Document marked as printed');
+  };
+
+  const handlePrintDocument = (docId: string, fileName: string) => {
+    toast.success(`Printing ${fileName}...`);
+    window.print();
   };
 
   return (
@@ -111,14 +127,27 @@ export default function StationaryDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>All Documents</CardTitle>
-          <div className="relative mt-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search documents..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search documents..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="printed">Printed</SelectItem>
+                <SelectItem value="collected">Collected</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
         <CardContent>
@@ -127,15 +156,15 @@ export default function StationaryDashboard() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Document</TableHead>
-                  <TableHead>Student</TableHead>
+                  <TableHead className="hidden md:table-cell">Student</TableHead>
                   <TableHead className="hidden sm:table-cell">Pages</TableHead>
-                  <TableHead className="hidden md:table-cell">Type</TableHead>
+                  <TableHead className="hidden lg:table-cell">Type</TableHead>
                   <TableHead className="text-center">Status</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredDocuments.map((doc, index) => (
+                {paginatedDocuments.map((doc, index) => (
                   <motion.tr
                     key={doc.id}
                     initial={{ opacity: 0, y: 10 }}
@@ -144,9 +173,9 @@ export default function StationaryDashboard() {
                     className="hover:bg-accent/50"
                   >
                     <TableCell className="font-medium">{doc.fileName}</TableCell>
-                    <TableCell>{doc.studentName}</TableCell>
+                    <TableCell className="hidden md:table-cell">{doc.studentName}</TableCell>
                     <TableCell className="hidden sm:table-cell">{doc.pages}</TableCell>
-                    <TableCell className="hidden md:table-cell">
+                    <TableCell className="hidden lg:table-cell">
                       <span className={doc.printType === 'color' ? 'text-primary' : 'text-muted-foreground'}>
                         {doc.printType === 'color' ? 'Color' : 'B/W'}
                       </span>
@@ -155,21 +184,62 @@ export default function StationaryDashboard() {
                       <StatusBadge status={doc.printStatus as any} />
                     </TableCell>
                     <TableCell className="text-right">
-                      {doc.printStatus === 'pending' && doc.paymentStatus === 'paid' && (
+                      <div className="flex justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleMarkAsPrinted(doc.id)}
+                          onClick={() => handlePrintDocument(doc.id, doc.fileName)}
+                          title="Print Document"
                         >
-                          Mark Printed
+                          <PrinterIcon className="h-4 w-4" />
                         </Button>
-                      )}
+                        {doc.printStatus === 'pending' && doc.paymentStatus === 'paid' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleMarkAsPrinted(doc.id)}
+                          >
+                            Mark Printed
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </motion.tr>
                 ))}
               </TableBody>
             </Table>
           </div>
+          {totalPages > 1 && (
+            <div className="mt-4">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <PaginationItem key={i + 1}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(i + 1)}
+                        isActive={currentPage === i + 1}
+                        className="cursor-pointer"
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
