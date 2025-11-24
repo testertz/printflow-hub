@@ -30,6 +30,8 @@ import PrintJobs from "./pages/admin/PrintJobs";
 import Payments from "./pages/admin/Payments";
 import Deliveries from "./pages/admin/Deliveries";
 import Settings from "./pages/admin/Settings";
+import AdminNotifications from "./pages/admin/Notifications";
+import AddUser from "./pages/admin/AddUser";
 
 // Runner Pages
 import RunnerDashboard from "./pages/runner/Dashboard";
@@ -45,6 +47,9 @@ import Alerts from "./pages/stationary/Alerts";
 
 // Shared Pages
 import Profile from "./pages/Profile";
+import StudentNotifications from "./pages/student/Notifications";
+import RunnerNotifications from "./pages/runner/Notifications";
+import StationaryNotifications from "./pages/stationary/Notifications";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -76,6 +81,7 @@ const App = () => (
               <Route path="upload" element={<UploadDocument />} />
               <Route path="documents" element={<MyDocuments />} />
               <Route path="tracking" element={<Tracking />} />
+              <Route path="notifications" element={<StudentNotifications />} />
               <Route path="profile" element={<Profile />} />
             </Route>
 
@@ -91,6 +97,8 @@ const App = () => (
               <Route path="print-jobs" element={<PrintJobs />} />
               <Route path="payments" element={<Payments />} />
               <Route path="deliveries" element={<Deliveries />} />
+              <Route path="notifications" element={<AdminNotifications />} />
+              <Route path="add-user" element={<AddUser />} />
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<Profile />} />
             </Route>
@@ -105,6 +113,7 @@ const App = () => (
               <Route path="dashboard" element={<RunnerDashboard />} />
               <Route path="pickup" element={<PickupTasks />} />
               <Route path="deliver" element={<DeliverTasks />} />
+              <Route path="notifications" element={<RunnerNotifications />} />
               <Route path="profile" element={<Profile />} />
             </Route>
 
@@ -120,6 +129,7 @@ const App = () => (
               <Route path="add-item" element={<AddItem />} />
               <Route path="stock-update" element={<StockUpdate />} />
               <Route path="alerts" element={<Alerts />} />
+              <Route path="notifications" element={<StationaryNotifications />} />
               <Route path="profile" element={<Profile />} />
             </Route>
 
