@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
-import { COLLECTION_FEE } from '@/services/api';
+import { COLLECTION_FEE, SELF_PICKUP_FEE } from '@/services/api';
 import { PaymentGateway, PaymentMethod } from '@/components/PaymentGateway';
 
 export default function UploadDocument() {
@@ -75,7 +75,7 @@ export default function UploadDocument() {
     return pages * costPerPage;
   };
 
-  const totalAmount = calculateCost() + (deliveryType === 'delivery' ? COLLECTION_FEE : 0);
+  const totalAmount = calculateCost() + (deliveryType === 'delivery' ? COLLECTION_FEE : SELF_PICKUP_FEE);
 
   const handleContinueToPayment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,7 +185,7 @@ export default function UploadDocument() {
                         <RadioGroupItem value="self-pickup" id="self-pickup" />
                         <Label htmlFor="self-pickup" className="cursor-pointer font-normal flex items-center gap-2">
                           <Package className="h-4 w-4" />
-                          Self Pickup from Stationary (No collection fee)
+                          Self Pickup from Stationary ({SELF_PICKUP_FEE} TSH fee)
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -238,12 +238,14 @@ export default function UploadDocument() {
                               <span className="text-sm text-muted-foreground">Print Cost:</span>
                               <span className="font-semibold">{calculateCost()} TSH</span>
                             </div>
-                            {deliveryType === 'delivery' && (
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-muted-foreground">Collection Fee:</span>
-                                <span className="font-semibold">{COLLECTION_FEE} TSH</span>
-                              </div>
-                            )}
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-muted-foreground">
+                                {deliveryType === 'delivery' ? 'Delivery Fee:' : 'Self-Pickup Fee:'}
+                              </span>
+                              <span className="font-semibold">
+                                {deliveryType === 'delivery' ? COLLECTION_FEE : SELF_PICKUP_FEE} TSH
+                              </span>
+                            </div>
                             <div className="border-t pt-3 flex justify-between items-center">
                               <span className="font-medium">Total Amount:</span>
                               <span className="text-xl sm:text-2xl font-bold text-primary">{totalAmount} TSH</span>

@@ -36,8 +36,9 @@ api.interceptors.response.use(
   }
 );
 
-// Collection fee constant
-export const COLLECTION_FEE = 500; // TSH
+// Fee constants
+export const COLLECTION_FEE = 500; // TSH - for delivery to location
+export const SELF_PICKUP_FEE = 200; // TSH - for self pickup from stationary
 
 // Mock data generators
 export const mockDocuments = Array.from({ length: 10 }, (_, i) => ({

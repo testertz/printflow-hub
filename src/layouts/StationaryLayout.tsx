@@ -7,6 +7,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupCon
 
 const menuItems = [
   { title: 'Dashboard', icon: LayoutDashboard, path: '/stationary/dashboard' },
+  { title: 'My Print Jobs', icon: Package, path: '/stationary/print-jobs' },
   { title: 'Inventory List', icon: Package, path: '/stationary/inventory' },
   { title: 'Add Item', icon: Plus, path: '/stationary/add-item' },
   { title: 'Stock Update', icon: TrendingUp, path: '/stationary/stock-update' },

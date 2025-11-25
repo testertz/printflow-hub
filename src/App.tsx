@@ -40,6 +40,7 @@ import DeliverTasks from "./pages/runner/DeliverTasks";
 
 // Stationary Pages
 import StationaryDashboard from "./pages/stationary/Dashboard";
+import StationaryPrintJobs from "./pages/stationary/PrintJobs";
 import InventoryList from "./pages/stationary/InventoryList";
 import AddItem from "./pages/stationary/AddItem";
 import StockUpdate from "./pages/stationary/StockUpdate";
@@ -125,6 +126,7 @@ const App = () => (
             }>
               <Route index element={<Navigate to="/stationary/dashboard" replace />} />
               <Route path="dashboard" element={<StationaryDashboard />} />
+              <Route path="print-jobs" element={<StationaryPrintJobs />} />
               <Route path="inventory" element={<InventoryList />} />
               <Route path="add-item" element={<AddItem />} />
               <Route path="stock-update" element={<StockUpdate />} />
