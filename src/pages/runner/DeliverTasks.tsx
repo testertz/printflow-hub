@@ -1,15 +1,30 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Truck, MapPin } from 'lucide-react';
+import { Truck, MapPin, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { StatusBadge } from '@/components/StatusBadge';
+import { Input } from '@/components/ui/input';
 import { mockDocuments } from '@/services/api';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export default function DeliverTasks() {
-  const deliveryTasks = mockDocuments.filter(d => d.printStatus === 'with_runner');
+  const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // Filter documents that are collected by THIS runner
+  const deliveryTasks = mockDocuments.filter(d => 
+    d.printStatus === 'collected' && d.runnerId === user?.id
+  );
+
+  const filteredTasks = deliveryTasks.filter(doc =>
+    doc.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doc.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doc.className.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleMarkDelivered = (taskId: string) => {
     toast.success('Document marked as delivered');
@@ -28,23 +43,40 @@ export default function DeliverTasks() {
       >
         <Card>
           <CardHeader>
-            <CardTitle>Out for Delivery</CardTitle>
+            <CardTitle>My Delivery Tasks</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">Documents you've picked up for delivery</p>
+            <div className="relative mt-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by document, student, or class..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="rounded-lg border">
+            <div className="rounded-lg border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Document</TableHead>
-                    <TableHead>Student</TableHead>
-                    <TableHead className="text-center">Class</TableHead>
-                    <TableHead className="text-center">Pages</TableHead>
+                    <TableHead className="hidden md:table-cell">Student</TableHead>
+                    <TableHead className="hidden sm:table-cell text-center">Class</TableHead>
+                    <TableHead className="hidden lg:table-cell text-center">Pages</TableHead>
                     <TableHead className="text-center">Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {deliveryTasks.map((task, index) => (
+                  {filteredTasks.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No documents for delivery
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredTasks.map((task, index) => (
                     <motion.tr
                       key={task.id}
                       initial={{ opacity: 0, y: 10 }}
@@ -53,29 +85,33 @@ export default function DeliverTasks() {
                       className="hover:bg-accent/50"
                     >
                       <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Truck className="h-5 w-5 text-primary" />
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                           </div>
-                          <span className="font-medium">{task.fileName}</span>
+                          <div className="min-w-0">
+                            <span className="font-medium text-sm sm:text-base truncate block">{task.fileName}</span>
+                            <div className="md:hidden text-xs text-muted-foreground">{task.studentName}</div>
+                          </div>
                         </div>
                       </TableCell>
-                      <TableCell>{task.studentName}</TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="hidden md:table-cell">{task.studentName}</TableCell>
+                      <TableCell className="hidden sm:table-cell text-center">
                         <div className="flex items-center justify-center gap-1">
                           <MapPin className="h-3 w-3 text-muted-foreground" />
-                          {task.className}
+                          <span className="text-sm">{task.className}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">{task.pages}</TableCell>
+                      <TableCell className="hidden lg:table-cell text-center">{task.pages}</TableCell>
                       <TableCell className="text-center">
                         <StatusBadge status={task.printStatus as any} />
                       </TableCell>
                       <TableCell className="text-right">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="default" size="sm">
-                              Mark as Delivered
+                            <Button variant="default" size="sm" className="text-xs sm:text-sm">
+                              <span className="hidden sm:inline">Mark as Delivered</span>
+                              <span className="sm:hidden">Deliver</span>
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -103,7 +139,8 @@ export default function DeliverTasks() {
                         </Dialog>
                       </TableCell>
                     </motion.tr>
-                  ))}
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
