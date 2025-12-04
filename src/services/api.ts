@@ -41,21 +41,26 @@ export const COLLECTION_FEE = 500; // TSH - for delivery to location
 export const SELF_PICKUP_FEE = 200; // TSH - for self pickup from stationary
 
 // Mock data generators
-export const mockDocuments = Array.from({ length: 10 }, (_, i) => ({
-  id: `doc-${i + 1}`,
-  fileName: `Document_${i + 1}.pdf`,
-  pages: Math.floor(Math.random() * 50) + 1,
-  printType: Math.random() > 0.5 ? 'color' : 'bw',
-  cost: Math.floor(Math.random() * 5000) + 1000,
-  paymentStatus: ['pending', 'paid'][Math.floor(Math.random() * 2)],
-  printStatus: ['pending', 'printed', 'collected'][Math.floor(Math.random() * 3)],
-  uploadedAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-  studentId: `student-${Math.floor(Math.random() * 100) + 1}`,
-  studentName: `Student ${Math.floor(Math.random() * 100) + 1}`,
-  classId: `class-${Math.floor(Math.random() * 5) + 1}`,
-  className: `Class ${Math.floor(Math.random() * 5) + 1}`,
-  runnerId: Math.random() > 0.5 ? `runner-${Math.floor(Math.random() * 5) + 1}` : null,
-}));
+export const mockDocuments = Array.from({ length: 10 }, (_, i) => {
+  const deliveryType = Math.random() > 0.5 ? 'delivery' : 'self-pickup';
+  return {
+    id: `doc-${i + 1}`,
+    fileName: `Document_${i + 1}.pdf`,
+    pages: Math.floor(Math.random() * 50) + 1,
+    printType: Math.random() > 0.5 ? 'color' : 'bw',
+    cost: Math.floor(Math.random() * 5000) + 1000,
+    paymentStatus: ['pending', 'paid'][Math.floor(Math.random() * 2)],
+    printStatus: ['pending', 'printed', 'collected'][Math.floor(Math.random() * 3)],
+    uploadedAt: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
+    studentId: `student-${Math.floor(Math.random() * 100) + 1}`,
+    studentName: `Student ${Math.floor(Math.random() * 100) + 1}`,
+    classId: `class-${Math.floor(Math.random() * 5) + 1}`,
+    className: `Class ${Math.floor(Math.random() * 5) + 1}`,
+    runnerId: Math.random() > 0.5 ? `runner-${Math.floor(Math.random() * 5) + 1}` : null,
+    deliveryType,
+    location: deliveryType === 'delivery' ? `Block ${String.fromCharCode(65 + Math.floor(Math.random() * 5))}, Room ${Math.floor(Math.random() * 200) + 100}` : null,
+  };
+});
 
 export const mockUsers = Array.from({ length: 50 }, (_, i) => ({
   id: `user-${i + 1}`,
