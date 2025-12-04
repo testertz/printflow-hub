@@ -42,8 +42,53 @@ export default function StationaryDashboard() {
   };
 
   const handlePrintDocument = (docId: string, fileName: string) => {
-    toast.success(`Printing ${fileName}...`);
-    window.print();
+    // Find the specific document
+    const doc = documents.find(d => d.id === docId);
+    if (!doc) {
+      toast.error('Document not found');
+      return;
+    }
+    
+    // Create a printable view for the specific document
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Print: ${fileName}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+            .info-row { display: flex; margin: 8px 0; }
+            .label { font-weight: bold; width: 150px; }
+            .value { flex: 1; }
+            @media print { .no-print { display: none; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Print Job Details</h1>
+            <p>Document ID: ${doc.id}</p>
+          </div>
+          <div class="info-row"><span class="label">File Name:</span><span class="value">${doc.fileName}</span></div>
+          <div class="info-row"><span class="label">Student:</span><span class="value">${doc.studentName}</span></div>
+          <div class="info-row"><span class="label">Pages:</span><span class="value">${doc.pages}</span></div>
+          <div class="info-row"><span class="label">Print Type:</span><span class="value">${doc.printType === 'color' ? 'Color' : 'Black & White'}</span></div>
+          <div class="info-row"><span class="label">Delivery:</span><span class="value">${doc.deliveryType === 'delivery' ? 'Delivery to: ' + (doc.location || 'N/A') : 'Self Pickup'}</span></div>
+          <div class="info-row"><span class="label">Status:</span><span class="value">${doc.printStatus}</span></div>
+          <div class="info-row"><span class="label">Payment:</span><span class="value">${doc.paymentStatus}</span></div>
+          <hr style="margin: 20px 0;" />
+          <p><em>This is a print job slip. The actual document file should be printed separately.</em></p>
+          <button class="no-print" onclick="window.print()" style="margin-top: 20px; padding: 10px 20px; cursor: pointer;">Print This Slip</button>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      toast.success(`Print window opened for ${fileName}`);
+    } else {
+      toast.error('Could not open print window. Please allow popups.');
+    }
   };
 
   return (

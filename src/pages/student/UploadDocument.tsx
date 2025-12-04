@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, DollarSign, CheckCircle, MapPin, Package, Loader2 } from 'lucide-react';
+import { DollarSign, CheckCircle, MapPin, Package, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { COLLECTION_FEE, SELF_PICKUP_FEE } from '@/services/api';
 import { PaymentGateway, PaymentMethod } from '@/components/PaymentGateway';
 import { parseDocument } from '@/utils/documentParser';
+import { FileDropzone } from '@/components/FileDropzone';
 
 export default function UploadDocument() {
   const [step, setStep] = useState<'upload' | 'payment' | 'success'>('upload');
@@ -26,58 +27,57 @@ export default function UploadDocument() {
   const BW_COST_PER_PAGE = 100; // TSH
   const COLOR_COST_PER_PAGE = 500; // TSH
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      const validTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'text/plain',
-        'application/rtf',
-        'text/rtf'
-      ];
+  const handleFileSelect = async (selectedFile: File) => {
+    const validTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'text/plain',
+      'application/rtf',
+      'text/rtf'
+    ];
+    
+    const extension = selectedFile.name.split('.').pop()?.toLowerCase();
+    const validExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf'];
+    
+    if (validTypes.includes(selectedFile.type) || (extension && validExtensions.includes(extension))) {
+      setFile(selectedFile);
+      setIsParsing(true);
+      setPages(0);
       
-      // Also check by extension for files that might not have correct MIME type
-      const extension = selectedFile.name.split('.').pop()?.toLowerCase();
-      const validExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf'];
-      
-      if (validTypes.includes(selectedFile.type) || (extension && validExtensions.includes(extension))) {
-        setFile(selectedFile);
-        setIsParsing(true);
-        setPages(0);
+      try {
+        const result = await parseDocument(selectedFile);
+        setPages(result.pages);
+        setDocumentType(result.type);
         
-        try {
-          // Real document parsing for accurate page count
-          const result = await parseDocument(selectedFile);
-          
-          setPages(result.pages);
-          setDocumentType(result.type);
-          
-          if (result.error) {
-            toast.warning(`Document loaded with estimation: ${result.pages} page${result.pages > 1 ? 's' : ''}`);
-          } else {
-            toast.success(`${result.type} parsed: ${result.pages} page${result.pages > 1 ? 's' : ''} detected`);
-          }
-        } catch (error) {
-          console.error('Error parsing document:', error);
-          // Fallback to estimation
-          const fileSizeKB = selectedFile.size / 1024;
-          const estimatedPages = Math.max(1, Math.ceil(fileSizeKB / 50));
-          setPages(estimatedPages);
-          setDocumentType('Document');
-          toast.warning(`Could not parse document accurately. Estimated: ${estimatedPages} page${estimatedPages > 1 ? 's' : ''}`);
-        } finally {
-          setIsParsing(false);
+        if (result.error) {
+          toast.warning(`Document loaded with estimation: ${result.pages} page${result.pages > 1 ? 's' : ''}`);
+        } else {
+          toast.success(`${result.type} parsed: ${result.pages} page${result.pages > 1 ? 's' : ''} detected`);
         }
-      } else {
-        toast.error('Please upload a valid document (PDF, Word, Excel, PowerPoint, or Text file). Images are not supported.');
+      } catch (error) {
+        console.error('Error parsing document:', error);
+        const fileSizeKB = selectedFile.size / 1024;
+        const estimatedPages = Math.max(1, Math.ceil(fileSizeKB / 50));
+        setPages(estimatedPages);
+        setDocumentType('Document');
+        toast.warning(`Could not parse document accurately. Estimated: ${estimatedPages} page${estimatedPages > 1 ? 's' : ''}`);
+      } finally {
+        setIsParsing(false);
       }
+    } else {
+      toast.error('Please upload a valid document (PDF, Word, Excel, PowerPoint, or Text file). Images are not supported.');
     }
+  };
+
+  const handleClearFile = () => {
+    setFile(null);
+    setPages(0);
+    setDocumentType('');
   };
 
   const calculateCost = () => {
@@ -150,32 +150,14 @@ export default function UploadDocument() {
               <CardContent>
                 <form onSubmit={handleContinueToPayment} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="file">Document File</Label>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                      <Input
-                        id="file"
-                        type="file"
-                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf"
-                        onChange={handleFileChange}
-                        className="cursor-pointer"
-                      />
-                      {isParsing && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Analyzing document...</span>
-                        </div>
-                      )}
-                      {file && !isParsing && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <FileText className="h-4 w-4" />
-                          <span className="truncate max-w-[200px]">{file.name}</span>
-                          {documentType && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">{documentType}</span>}
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Supported formats: PDF, Word, Excel, PowerPoint, Text files (Images not supported)
-                    </p>
+                    <Label>Document File</Label>
+                    <FileDropzone
+                      onFileSelect={handleFileSelect}
+                      isParsing={isParsing}
+                      selectedFile={file}
+                      onClearFile={handleClearFile}
+                      documentType={documentType}
+                    />
                   </div>
 
                   <div className="space-y-3">
