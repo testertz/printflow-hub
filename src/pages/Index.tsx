@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Printer, Upload, Truck, Users, Package } from 'lucide-react';
-
+import { ThemeToggle } from '@/components/ThemeToggle';
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -28,7 +28,8 @@ const Index = () => {
                 PrintHub
               </span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Sign In
               </Button>
