@@ -11,6 +11,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/context/AuthContext';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export const Topbar = () => {
   const { user, logout } = useAuth();
@@ -29,6 +30,8 @@ export const Topbar = () => {
       <SidebarTrigger className="-ml-2" />
       
       <div className="flex-1" />
+
+      <ThemeToggle />
 
       <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5" />
