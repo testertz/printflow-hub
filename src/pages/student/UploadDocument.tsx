@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, DollarSign, CheckCircle, MapPin, Package } from 'lucide-react';
+import { Upload, FileText, DollarSign, CheckCircle, MapPin, Package, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { COLLECTION_FEE, SELF_PICKUP_FEE } from '@/services/api';
 import { PaymentGateway, PaymentMethod } from '@/components/PaymentGateway';
+import { parseDocument } from '@/utils/documentParser';
 
 export default function UploadDocument() {
   const [step, setStep] = useState<'upload' | 'payment' | 'success'>('upload');
@@ -17,13 +18,15 @@ export default function UploadDocument() {
   const [deliveryType, setDeliveryType] = useState<'self-pickup' | 'delivery'>('delivery');
   const [location, setLocation] = useState('');
   const [pages, setPages] = useState(0);
+  const [documentType, setDocumentType] = useState('');
   const [paymentReference, setPaymentReference] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
 
   const BW_COST_PER_PAGE = 100; // TSH
   const COLOR_COST_PER_PAGE = 500; // TSH
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       const validTypes = [
@@ -35,35 +38,42 @@ export default function UploadDocument() {
         'application/vnd.ms-powerpoint',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'text/plain',
-        'application/rtf'
+        'application/rtf',
+        'text/rtf'
       ];
       
-      if (validTypes.includes(selectedFile.type)) {
+      // Also check by extension for files that might not have correct MIME type
+      const extension = selectedFile.name.split('.').pop()?.toLowerCase();
+      const validExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf'];
+      
+      if (validTypes.includes(selectedFile.type) || (extension && validExtensions.includes(extension))) {
         setFile(selectedFile);
-        // Enhanced page count calculation based on file size
-        // In production, this should be done on the backend with proper document parsing
-        const fileSizeKB = selectedFile.size / 1024;
-        let estimatedPages = 1;
+        setIsParsing(true);
+        setPages(0);
         
-        if (selectedFile.type === 'application/pdf') {
-          // PDF: roughly 50-100KB per page
-          estimatedPages = Math.max(1, Math.ceil(fileSizeKB / 75));
-        } else if (selectedFile.type.includes('word') || selectedFile.type === 'application/rtf') {
-          // Word/RTF: roughly 20-40KB per page
-          estimatedPages = Math.max(1, Math.ceil(fileSizeKB / 30));
-        } else if (selectedFile.type.includes('excel')) {
-          // Excel: estimate based on file size
-          estimatedPages = Math.max(1, Math.ceil(fileSizeKB / 50));
-        } else if (selectedFile.type.includes('powerpoint')) {
-          // PowerPoint: roughly 100-200KB per slide
-          estimatedPages = Math.max(1, Math.ceil(fileSizeKB / 150));
-        } else {
-          // Text files: roughly 3-5KB per page
-          estimatedPages = Math.max(1, Math.ceil(fileSizeKB / 4));
+        try {
+          // Real document parsing for accurate page count
+          const result = await parseDocument(selectedFile);
+          
+          setPages(result.pages);
+          setDocumentType(result.type);
+          
+          if (result.error) {
+            toast.warning(`Document loaded with estimation: ${result.pages} page${result.pages > 1 ? 's' : ''}`);
+          } else {
+            toast.success(`${result.type} parsed: ${result.pages} page${result.pages > 1 ? 's' : ''} detected`);
+          }
+        } catch (error) {
+          console.error('Error parsing document:', error);
+          // Fallback to estimation
+          const fileSizeKB = selectedFile.size / 1024;
+          const estimatedPages = Math.max(1, Math.ceil(fileSizeKB / 50));
+          setPages(estimatedPages);
+          setDocumentType('Document');
+          toast.warning(`Could not parse document accurately. Estimated: ${estimatedPages} page${estimatedPages > 1 ? 's' : ''}`);
+        } finally {
+          setIsParsing(false);
         }
-        
-        setPages(estimatedPages);
-        toast.success(`Document loaded: approximately ${estimatedPages} page${estimatedPages > 1 ? 's' : ''}`);
       } else {
         toast.error('Please upload a valid document (PDF, Word, Excel, PowerPoint, or Text file). Images are not supported.');
       }
@@ -108,6 +118,7 @@ export default function UploadDocument() {
   const handleNewUpload = () => {
     setFile(null);
     setPages(0);
+    setDocumentType('');
     setPrintType('bw');
     setDeliveryType('delivery');
     setLocation('');
@@ -148,10 +159,17 @@ export default function UploadDocument() {
                         onChange={handleFileChange}
                         className="cursor-pointer"
                       />
-                      {file && (
+                      {isParsing && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Analyzing document...</span>
+                        </div>
+                      )}
+                      {file && !isParsing && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <FileText className="h-4 w-4" />
                           <span className="truncate max-w-[200px]">{file.name}</span>
+                          {documentType && <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">{documentType}</span>}
                         </div>
                       )}
                     </div>
@@ -260,10 +278,19 @@ export default function UploadDocument() {
                     type="submit" 
                     className="w-full" 
                     size="lg"
-                    disabled={!file}
+                    disabled={!file || isParsing || pages === 0}
                   >
-                    <DollarSign className="mr-2 h-4 w-4" />
-                    Continue to Payment
+                    {isParsing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing Document...
+                      </>
+                    ) : (
+                      <>
+                        <DollarSign className="mr-2 h-4 w-4" />
+                        Continue to Payment
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
