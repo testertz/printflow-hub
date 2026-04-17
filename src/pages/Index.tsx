@@ -146,7 +146,7 @@ const Index = () => {
                 className="text-center p-4 rounded-xl bg-card/60 backdrop-blur border border-border/50"
               >
                 <div className="text-2xl md:text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  <AnimatedCounter end={stat.value} />{stat.suffix}
+                  <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                 </div>
                 <div className="text-xs md:text-sm text-muted-foreground mt-1">{stat.label}</div>
               </motion.div>
