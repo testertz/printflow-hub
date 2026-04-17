@@ -1,10 +1,16 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Printer, Upload, Truck, Users, Package, FileText, CreditCard, Bell, ArrowRight } from 'lucide-react';
+import { Printer, Upload, Truck, Users, Package, FileText, CreditCard, Bell, ArrowRight, HelpCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -29,6 +35,12 @@ const Index = () => {
               </span>
             </div>
             <div className="flex items-center gap-2">
+              <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                <Link to="/resources">
+                  <FileText className="h-4 w-4 mr-1" />
+                  Cover Pages
+                </Link>
+              </Button>
               <ThemeToggle />
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Sign In
