@@ -53,6 +53,7 @@ import RunnerNotifications from "./pages/runner/Notifications";
 import StationaryNotifications from "./pages/stationary/Notifications";
 
 import Index from "./pages/Index";
+import Resources from "./pages/Resources";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +72,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/cover-pages" element={<Resources />} />
 
             {/* Student Routes */}
             <Route path="/student" element={

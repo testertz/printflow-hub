@@ -1,10 +1,16 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Printer, Upload, Truck, Users, Package, FileText, CreditCard, Bell, ArrowRight } from 'lucide-react';
+import { Printer, Upload, Truck, Users, Package, FileText, CreditCard, Bell, ArrowRight, HelpCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -29,6 +35,12 @@ const Index = () => {
               </span>
             </div>
             <div className="flex items-center gap-2">
+              <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                <Link to="/resources">
+                  <FileText className="h-4 w-4 mr-1" />
+                  Cover Pages
+                </Link>
+              </Button>
               <ThemeToggle />
               <Button variant="ghost" onClick={() => navigate('/login')}>
                 Sign In
@@ -70,12 +82,18 @@ const Index = () => {
             A complete printing management system for colleges. Upload, pay, and track your documents seamlessly.
           </p>
 
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-wrap gap-3 justify-center">
             <Button size="lg" onClick={() => navigate('/register')}>
               Start Printing
             </Button>
             <Button size="lg" variant="outline" onClick={() => navigate('/login')}>
               Sign In
+            </Button>
+            <Button size="lg" variant="secondary" asChild>
+              <Link to="/resources">
+                <FileText className="h-4 w-4 mr-1" />
+                Free Cover Pages
+              </Link>
             </Button>
           </div>
         </motion.div>
@@ -127,6 +145,84 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">{feature.description}</p>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* FAQ Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-24 max-w-3xl mx-auto"
+        >
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+              <HelpCircle className="h-4 w-4" />
+              FAQ
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">Frequently Asked Questions</h2>
+            <p className="text-muted-foreground text-lg">
+              Everything you need to know about printing, pricing, and delivery.
+            </p>
+          </div>
+
+          <Accordion type="single" collapsible className="w-full bg-card rounded-xl border border-border/50 px-6">
+            <AccordionItem value="q1">
+              <AccordionTrigger className="text-left">What file formats can I upload for printing?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                You can upload <strong>PDF, DOCX, PPTX, XLSX, TXT, and RTF</strong> files. Our system automatically reads the document and counts the exact number of pages — no estimation, no surprises.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="q2">
+              <AccordionTrigger className="text-left">How is the printing cost calculated?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Cost is based on the <strong>actual page count</strong>, your chosen options (black & white or color, single or double-sided), and the number of copies. The total is shown clearly before you pay — there are no hidden charges.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="q3">
+              <AccordionTrigger className="text-left">What payment methods are supported?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                We support secure online payments through the integrated payment gateway, including <strong>mobile money, debit/credit cards, and bank transfers</strong>. You'll get an instant receipt after payment.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="q4">
+              <AccordionTrigger className="text-left">How long does printing and delivery take?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Most jobs are printed within <strong>15–30 minutes</strong> of payment. A runner then collects and delivers your documents to your class or chosen location, usually within an hour during peak hours.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="q5">
+              <AccordionTrigger className="text-left">Can I track my document in real time?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Yes. From your dashboard you can see live status updates: <strong>Uploaded → Paid → Printing → Ready → Out for Delivery → Delivered</strong>. You'll also receive notifications at every stage.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="q6">
+              <AccordionTrigger className="text-left">Where can I get free cover pages for my assignments?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Visit our <Link to="/resources" className="text-primary underline font-medium">Cover Pages</Link> resource page to download free, professional cover page templates for both <strong>individual and group assignments</strong>.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="q7">
+              <AccordionTrigger className="text-left">What if my document doesn't arrive or has issues?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Contact support directly from your dashboard. If a print is incorrect or undelivered, we will <strong>reprint or refund</strong> at no extra cost. Your satisfaction is guaranteed.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="q8">
+              <AccordionTrigger className="text-left">Is my uploaded content private and secure?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Absolutely. Documents are <strong>encrypted in transit</strong>, only accessible to authorized stationary staff, and automatically removed from our queue after successful delivery.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </motion.div>
 
         {/* How It Works */}
