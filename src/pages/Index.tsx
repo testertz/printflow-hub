@@ -177,10 +177,10 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: Upload, title: 'Easy Upload', description: 'Drop any PDF, DOCX, or PPTX — pages counted instantly.', color: 'primary' },
-              { icon: Shield, title: 'Secure Payments', description: 'Pay safely via M-Pesa, HaloPesa, or card. Instant receipts.', color: 'success' },
-              { icon: Truck, title: 'Live Tracking', description: 'Watch your job move from print queue to your classroom.', color: 'warning' },
-              { icon: Clock, title: 'Lightning Fast', description: 'Most prints ready in 15 minutes, delivered within the hour.', color: 'info' },
+              { icon: Upload, title: 'Easy Upload', description: 'Drop any PDF, DOCX, or PPTX — pages counted instantly.', iconBg: 'bg-primary/10', iconColor: 'text-primary' },
+              { icon: Shield, title: 'Secure Payments', description: 'Pay safely via M-Pesa, HaloPesa, or card. Instant receipts.', iconBg: 'bg-success/10', iconColor: 'text-success' },
+              { icon: Truck, title: 'Live Tracking', description: 'Watch your job move from print queue to your classroom.', iconBg: 'bg-warning/10', iconColor: 'text-warning' },
+              { icon: Clock, title: 'Lightning Fast', description: 'Most prints ready in 15 minutes, delivered within the hour.', iconBg: 'bg-info/10', iconColor: 'text-info' },
             ].map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -190,8 +190,8 @@ const Index = () => {
                 transition={{ delay: index * 0.1 }}
                 className="group p-6 rounded-2xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 transition-all"
               >
-                <div className={`h-12 w-12 rounded-xl bg-${feature.color}/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <feature.icon className={`h-6 w-6 text-${feature.color}`} />
+                <div className={`h-12 w-12 rounded-xl ${feature.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
